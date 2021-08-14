@@ -11,6 +11,8 @@ CACHE_DIR = os.path.expanduser("~/.python-epo-ops-client")
 
 
 def region():
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
     return make_region().configure(
         "dogpile.cache.dbm",
         expiration_time=60 * 60 * 24,  # 1 day in seconds
@@ -37,7 +39,13 @@ def middlewares():
 
 def ops_client():
     ops_key = os.getenv("OPS_KEY")
+    if not ops_key:
+        raise RuntimeError("'OPS_KEY' environment variable does not exist or is empty.")
     ops_secret = os.getenv("OPS_SECRET")
+    if not ops_secret:
+        raise RuntimeError(
+            "'OPS_SECRET' environment variable does not exist or is empty."
+        )
     return epo_ops.Client(
         key=ops_key,
         secret=ops_secret,
